@@ -39,12 +39,10 @@ public class AuthController {
             User user = userService.createUser(request);
             return ResponseEntity.ok(user);
         } catch (DataIntegrityViolationException e) {
-            // Burada özelleştirilmiş bir hata mesajı gönderiyoruz
             return ResponseEntity
-                    .status(HttpStatus.CONFLICT)  // HTTP 409 Conflict
+                    .status(HttpStatus.CONFLICT)
                     .body("Bu e-posta adresi ile bir kayıt zaten mevcut.");
         } catch (Exception e) {
-            // Diğer tüm hatalar için genel bir hata mesajı
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Kayıt işlemi sırasında bir hata oluştu.");
