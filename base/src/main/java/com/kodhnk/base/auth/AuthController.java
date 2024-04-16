@@ -8,6 +8,9 @@ import com.kodhnk.base.security.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,10 +34,22 @@ public class AuthController {
     private final UserRepository repository;
 
     @PostMapping("/register")
-    public User addUser(@RequestBody CreateUserRequest request) {
-        return userService.createUser(request);
+    public ResponseEntity<?> addUser(@RequestBody CreateUserRequest request) {
+        try {
+            User user = userService.createUser(request);
+            return ResponseEntity.ok(user);
+        } catch (DataIntegrityViolationException e) {
+            // Burada özelleştirilmiş bir hata mesajı gönderiyoruz
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)  // HTTP 409 Conflict
+                    .body("Bu e-posta adresi ile bir kayıt zaten mevcut.");
+        } catch (Exception e) {
+            // Diğer tüm hatalar için genel bir hata mesajı
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Kayıt işlemi sırasında bir hata oluştu.");
+        }
     }
-
 
     @PostMapping("/authenticate")
     public String authenticate(@RequestBody AuthenticationRequest request) {
