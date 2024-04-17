@@ -46,7 +46,6 @@ public class AuthController {
                     .body("Kayıt işlemi sırasında bir hata oluştu.");
         }
     }
-
     @PostMapping("/authenticate")
     public String authenticate(@RequestBody AuthenticationRequest request) {
         log.info("Authenticating user: {}", request.getUsername());
