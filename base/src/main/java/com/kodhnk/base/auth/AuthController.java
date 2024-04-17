@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import java.util.Optional;
-
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -51,7 +49,6 @@ public class AuthController {
 
     @PostMapping("/authenticate")
     public String authenticate(@RequestBody AuthenticationRequest request) {
-
         log.info("Authenticating user: {}", request.getUsername());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -59,7 +56,6 @@ public class AuthController {
                         request.getPassword()
                 )
         );
-
         Optional<User> userOptional = repository.findByEmail(request.getUsername());
         if (userOptional.isPresent()) {
             User user = userOptional.get();

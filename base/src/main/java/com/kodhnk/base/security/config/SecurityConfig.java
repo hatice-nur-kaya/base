@@ -29,11 +29,9 @@ import static com.kodhnk.base.entities.enums.Role.MANAGER;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
-
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -55,7 +53,6 @@ public class SecurityConfig {
                                 // Belirtilen URL'lere göre DELETE istekleri için yetkileri kontrol etme
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/management/**").hasAnyAuthority(ADMIN_DELETE.name(), MANAGER_DELETE.name())
 
-
                                 .requestMatchers("/api/v1/admin/**").hasAnyRole(ADMIN.name())
                                 // Belirtilen URL'lere göre GET istekleri için yetkileri kontrol etme
                                 .requestMatchers(HttpMethod.GET, "/api/v1/admin/**").hasAnyAuthority(ADMIN_READ.name())
@@ -65,7 +62,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/admin/**").hasAnyAuthority(ADMIN_UPDATE.name())
                                 // Belirtilen URL'lere göre DELETE istekleri için yetkileri kontrol etme
                                 .requestMatchers(HttpMethod.DELETE, "/api/v1/admin/**").hasAnyAuthority(ADMIN_DELETE.name())
-
                                 // Diğer tüm istekleri oturum açmış kullanıcılara izin verme
                                 .anyRequest().authenticated()
                 )
@@ -75,7 +71,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
