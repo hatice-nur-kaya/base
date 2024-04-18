@@ -48,7 +48,6 @@ public class AuthController {
     }
     @PostMapping("/authenticate")
     public String authenticate(@RequestBody AuthenticationRequest request) {
-        log.info("Authenticating user: {}", request.getUsername());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
