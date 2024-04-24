@@ -32,7 +32,9 @@ public class UserService implements UserDetailsService {
     }
 
     public User createUser(CreateUserRequest request) {
-
+        userRepository.findByEmail(request.email()).ifPresent(u -> {
+            throw new IllegalStateException("Email already in use.");
+        });
         User newUser = User.builder()
                 .firstname(request.firstname())
                 .lastname(request.lastname())

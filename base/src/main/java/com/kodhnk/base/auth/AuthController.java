@@ -10,11 +10,12 @@ import com.kodhnk.base.security.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,24 +49,6 @@ public class AuthController {
         } catch (Exception e) {
             log.error("Genel hata: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen bir hata oluştu.");
-        }
-    }
-
-    @PostMapping("/authenticate")
-    public String authenticate(@RequestBody AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        Optional<User> userOptional = repository.findByEmail(request.getUsername());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            var jwtToken = jwtService.generateToken(user.getUsername());
-            return jwtToken;
-        } else {
-            return "Kullanıcı bulunamadı";
         }
     }
 }
