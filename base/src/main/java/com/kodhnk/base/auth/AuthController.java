@@ -2,6 +2,8 @@ package com.kodhnk.base.auth;
 
 import com.kodhnk.base.dataAccess.UserRepository;
 import com.kodhnk.base.entities.User;
+import com.kodhnk.base.exceptions.UnexpectedErrorException;
+import com.kodhnk.base.exceptions.UserAlreadyExistsException;
 import com.kodhnk.base.security.dto.CreateUserRequest;
 import com.kodhnk.base.security.services.JwtService;
 import com.kodhnk.base.security.services.UserService;
@@ -35,17 +37,20 @@ public class AuthController {
     public ResponseEntity<?> addUser(@RequestBody CreateUserRequest request) {
         try {
             User user = userService.createUser(request);
-            return ResponseEntity.ok(user);
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body("Bu e-posta adresi ile bir kayıt zaten mevcut.");
+            var jwtToken = jwtService.generateToken(user.getUsername());
+            return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
+        } catch (UserAlreadyExistsException e) {
+            log.error("Kullanıcı zaten mevcut: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Bu kullanıcı adı zaten kullanılıyor.");
+        } catch (UnexpectedErrorException e) {
+            log.error("İşlem sırasında beklenmeyen bir hata oluştu: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("İşlem sırasında bir hata oluştu.");
         } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Kayıt işlemi sırasında bir hata oluştu.");
+            log.error("Genel hata: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen bir hata oluştu.");
         }
     }
+
     @PostMapping("/authenticate")
     public String authenticate(@RequestBody AuthenticationRequest request) {
         authenticationManager.authenticate(
