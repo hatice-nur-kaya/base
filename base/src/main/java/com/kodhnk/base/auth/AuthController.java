@@ -51,4 +51,27 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Beklenmeyen bir hata oluştu.");
         }
     }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+            Optional<User> userOptional = repository.findByEmail(request.getUsername());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                var jwtToken = jwtService.generateToken(user.getUsername());
+                return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
+            } else {
+                throw new UsernameNotFoundException("Kullanıcı adı veya şifre hatalı.");
+            }
+        } catch (AuthenticationException e) {
+            log.error("Kimlik doğrulama başarısız: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Kimlik doğrulama başarısız.");
+        }
+    }
 }
